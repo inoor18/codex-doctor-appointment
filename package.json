@@ -1,0 +1,11 @@
+{
+  "name": "doctor-appointment-app",
+  "private": true,
+  "workspaces": ["backend", "frontend"],
+  "scripts": {
+    "install:all": "npm install --workspaces",
+    "dev:backend": "npm run dev -w backend",
+    "dev:frontend": "npm run dev -w frontend",
+    "build": "npm run build -w backend && npm run build -w frontend"
+  }
+}
