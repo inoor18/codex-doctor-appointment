@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+model User {
+  id           Int           @id @default(autoincrement())
+  name         String
+  email        String        @unique
+  phoneNumber  String        @unique @map("phone_number")
+  passwordHash String        @map("password_hash")
+  role         Role          @default(PATIENT)
+  appointments Appointment[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  createdBy Int?      @map("created_by")
+  updatedAt DateTime? @map("updated_at")
+  updatedBy Int?      @map("updated_by")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy Int?      @map("deleted_by")
+
+  @@map("users")
+}
+
+model Department {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  doctors     Doctor[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  createdBy Int?      @map("created_by")
+  updatedAt DateTime? @map("updated_at")
+  updatedBy Int?      @map("updated_by")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy Int?      @map("deleted_by")
+
+  @@map("departments")
+}
+
+model Doctor {
+  id            Int           @id @default(autoincrement())
+  name          String
+  specialization String
+  experience    Int
+  profileImageUrl String      @map("profile_image_url")
+  availability  String
+
+  departmentId Int        @map("department_id")
+  department   Department @relation(fields: [departmentId], references: [id])
+  appointments Appointment[]
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  createdBy Int?      @map("created_by")
+  updatedAt DateTime? @map("updated_at")
+  updatedBy Int?      @map("updated_by")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy Int?      @map("deleted_by")
+
+  @@map("doctors")
+}
+
+model Appointment {
+  id               Int      @id @default(autoincrement())
+  appointmentDate  DateTime @map("appointment_date")
+  slotTime         String   @map("slot_time")
+  notes            String?
+
+  userId   Int  @map("user_id")
+  doctorId Int  @map("doctor_id")
+  user     User   @relation(fields: [userId], references: [id])
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  createdAt DateTime  @default(now()) @map("created_at")
+  createdBy Int?      @map("created_by")
+  updatedAt DateTime? @map("updated_at")
+  updatedBy Int?      @map("updated_by")
+  deletedAt DateTime? @map("deleted_at")
+  deletedBy Int?      @map("deleted_by")
+
+  @@unique([doctorId, appointmentDate, slotTime])
+  @@map("appointments")
+}
